@@ -12,17 +12,10 @@ jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-            # checkout code
+            # Checkout code
             - uses: actions/checkout@main
-            
-            # Debugging step
-            - name: Print environment variables
-              run: |
-                echo "AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}"
-                echo "AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}"
-                echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
-            # login to Azure
+            # Login to Azure
             - uses: azure/login@v1
               with:
                   client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -39,3 +32,6 @@ jobs:
                 template: ./infra/main.bicep
                 parameters: location=${{ vars.AZURE_REGION}} resourceGroupName=${{ vars.AZURE_RESOURCE_GROUP}} webAppName=${{ vars.AZURE_WEB_APP_NAME}} webAppPlan=${{ vars.AZURE_WEB_APP_PLAN}}
                 failOnStdErr: true
+
+            - name: logout
+              run: az logout
