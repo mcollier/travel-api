@@ -1,4 +1,9 @@
-on: [push]
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
 name: Provision resources
 permissions:
     id-token: write
