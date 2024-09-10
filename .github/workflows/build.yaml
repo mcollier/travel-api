@@ -1,26 +1,36 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
   pull_request:
     branches:
       - main
-  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: "8.0.x"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+        # login to Azure
+      - uses: azure/login@v1
+        with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@main
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x" # Adjust the version as needed
+          dotnet-version: ${{ env.DOTNET_VERSION }} # Adjust the version as needed
 
       - name: Restore dependencies
         run: dotnet restore
@@ -33,3 +43,18 @@ jobs:
       - name: Run tests
         run: dotnet test --no-restore --verbosity normal
         working-directory: src
+
+      - name: Publish
+        run: dotnet publish --no-restore --configuration Release --output ./publish
+        working-directory: src
+
+      - name: Deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEB_APP_NAME}}
+          package: ./publish
+
+      - name: logout
+        run: az logout
+
+      
