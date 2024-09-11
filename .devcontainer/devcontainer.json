@@ -33,7 +33,8 @@
                 "ms-dotnettools.csdevkit",
                 "ms-vscode.azure-account",
                 "ms-vscode.vscode-node-azure-pack",
-                "github.vscode-github-actions"
+                "github.vscode-github-actions",
+                "humao.rest-client"
             ]
         }
     }
