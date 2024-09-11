@@ -50,7 +50,7 @@ jobs:
         working-directory: src
 
       - name: Publish
-        run: dotnet publish --no-restore --configuration Release --output ./publish
+        run: dotnet publish --no-restore --configuration Release --output ../publish
         working-directory: src
 
       - name: Deploy
