@@ -31,7 +31,17 @@ jobs:
       - name: Build project
         uses: ./.github/workflows/build.yaml
 
-      # - name: Checkout code
+      - name: Deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEB_APP_NAME}}
+          package: ./publish
+
+      - name: logout
+        run: az logout
+
+      
+# - name: Checkout code
       #   uses: actions/checkout@main
 
       # - name: Set up .NET Core
@@ -54,14 +64,3 @@ jobs:
       # - name: Publish
       #   run: dotnet publish --no-restore --configuration Release --output ./publish
       #   working-directory: src
-
-      - name: Deploy
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ vars.AZURE_WEB_APP_NAME}}
-          package: ./publish
-
-      - name: logout
-        run: az logout
-
-      
