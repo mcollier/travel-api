@@ -1,0 +1,79 @@
+@host=http://localhost:5081
+
+GET http://localhost:5081/api/reservation/flights HTTP/1.1
+# x-custom-status:
+
+###
+POST http://localhost:5081/api/reservation/flight HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "COLLIER FLIGHT",
+  "from": "ORD",
+  "to": "CMH",
+  "departure": "2024-09-11T01:30:32.998Z",
+  "arrival": "2024-09-11T01:30:32.998Z"
+}
+
+### Delete a flight.
+DELETE {{host}}/api/reservation/flight/b05e8359-9eff-4a50-ab85-0f0c313c13ed HTTP/1.1
+# x-custom-status: 429
+
+###
+
+GET {{host}}/api/reservation/flight/0662a2c1-8776-49cb-9c1c-07a95c6b83cb HTTP/1.1
+
+### Get a non-existent flight.
+GET {{host}}/api/reservation/flight/00000000-0000-0000-0000-000000000000 HTTP/1.1
+
+### Get all hotel reservations
+GET {{host}}/api/reservation/hotels HTTP/1.1
+
+### Make a new hotel reservation
+POST {{host}}/api/reservation/hotel HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "COLLIER HOTEL",
+  "address": "123 main st",
+  "checkin": "2024-09-11T01:30:32.998Z",
+  "checkout": "2024-09-14T01:30:32.998Z"
+}
+
+### Get a specific hotel reservation
+GET {{host}}/api/reservation/hotel/a2fd0ba0-be00-4b62-a98b-a8b7d22f8264 HTTP/1.1
+
+### Get a non-existent hotel reservation
+GET {{host}}/api/reservation/hotel/00000000-0000-0000-0000-000000000000 HTTP/1.1
+
+### Delete a hotel reservation
+DELETE {{host}}/api/reservation/hotel/78bf7e1d-ca7a-4ff3-ae34-57f25031e022 HTTP/1.1
+
+### Trip reservation confirmation
+
+POST {{host}}/api/reservation/confirmation HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": "",
+  "flight": 
+    {
+      "id": "0662a2c1-8776-49cb-9c1c-07a95c6b83cb",
+      "name": "COLLIER FLIGHT",
+      "from": "ORD",
+      "to": "CMH",
+      "departure": "2024-09-11T01:30:32.998Z",
+      "arrival": "2024-09-11T01:30:32.998Z"
+    },
+  "hotel": 
+    {
+    "id": "a2fd0ba0-be00-4b62-a98b-a8b7d22f8264",
+    "name": "COLLIER HOTEL",
+    "address": "123 main st",
+    "checkIn": "2024-09-11T01:30:32.998Z",
+    "checkOut": "2024-09-14T01:30:32.998Z"
+  }
+}
+
+### Send trip failure notification
+POST {{host}}/api/reservation/tripfailure HTTP/1.1
