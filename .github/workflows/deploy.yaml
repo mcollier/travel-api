@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 permissions:
     id-token: write
@@ -37,17 +34,19 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} # Adjust the version as needed
 
-      - name: Restore dependencies
-        run: dotnet restore
-        working-directory: src
+      - name: Call Build workflow
+        uses: ./.github/workflows/build.yaml
+      # - name: Restore dependencies
+      #   run: dotnet restore
+      #   working-directory: src
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-        working-directory: src
+      # - name: Build
+      #   run: dotnet build --configuration Release --no-restore
+      #   working-directory: src
 
-      - name: Run tests
-        run: dotnet test --no-restore --verbosity normal
-        working-directory: src
+      # - name: Run tests
+      #   run: dotnet test --no-restore --verbosity normal
+      #   working-directory: src
 
       - name: Publish
         run: dotnet publish --no-restore --configuration Release --output ../publish
