@@ -14,7 +14,7 @@ env:
   DOTNET_VERSION: "8.0.x"
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
