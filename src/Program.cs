@@ -67,7 +67,7 @@ app.MapPost("/api/reservation/flight", (FlightReservation flight) =>
     string id = Guid.NewGuid().ToString();
     var f = new FlightReservation(id, flight.Name, flight.From, flight.To, flight.Departure, flight.Arrival);
     flights.Add(f);
-    return Results.Created($"/api/reservation/flight/{id}", f);
+    return Results.Created($"/api/reservation/flight/{id}", f.Id);
 });
 
 app.MapDelete("/api/reservation/flight/{id}", (string id) =>
@@ -76,7 +76,7 @@ app.MapDelete("/api/reservation/flight/{id}", (string id) =>
     FlightReservation? flightReservation = flights.FirstOrDefault(f => f.Id == id);
     if (flightReservation == null)
     {
-        return Results.NotFound($"Reservation {id} not found.");
+        return Results.NotFound($"Reservation {id} not found.", id);
     }
     else
     {
@@ -103,14 +103,29 @@ app.MapPost("/api/reservation/hotel", (HotelReservation hotel) =>
     // Perform some logic to create a new hotel reservation
     string id = Guid.NewGuid().ToString();
 
+    var h = new hotelReservation(id, hotel.Name, hotel.Address, hotel.CheckIn, hotel.CheckOut);
+    hotels.Add(h);
+
     // Return a HTTP Created result with the newly created reservation
-    return Results.Created($"/api/reservation/hotel/{id}", new HotelReservation(id, hotel.Name, hotel.Address, hotel.CheckIn, hotel.CheckOut));
+    return Results.Created($"/api/reservation/hotel/{id}", h.Id);
+    // return Results.Created($"/api/reservation/hotel/{id}", new HotelReservation(id, hotel.Name, hotel.Address, hotel.CheckIn, hotel.CheckOut));
 });
 
 
 app.MapDelete("/api/reservation/hotel/{id}", (string id) =>
 {
     app.Logger.LogInformation($"Deleting reservation {id}.");
+
+    HotelReservation? hotelReservation = hotels.FirstOrDefault(h => h.Id == id);
+    if (hotelReservation == null)
+    {
+        return Results.NotFound($"Hotel reservation {id} not found.", id);
+    }
+    else
+    {
+        hotels.Remove(hotelReservation);
+    }
+
     return Results.Ok($"Deleting reservation {id}.");
 });
 
