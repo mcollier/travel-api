@@ -37,11 +37,17 @@ List<HotelReservation> hotels =
 // Custom middleware to set a custom status code.
 app.Use(async (context, next) =>
 {
-    if (context.Request.Headers.ContainsKey("x-custom-status"))
+    if (context.Request.Headers.TryGetValue("x-custom-status", out var value))
     {
-        context.Response.StatusCode = int.Parse(context.Request.Headers["x-custom-status"]);
+        if (int.TryParse(value, out int statusCode))
+        {
+            context.Response.StatusCode = statusCode;
+        }
+        else
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        }
         await context.Response.WriteAsync("Custom status code set.");
-
         return;
     }
     await next();
@@ -57,7 +63,11 @@ app.MapGet("/api/reservation/flight/{id}", (string id) =>
     // Perform some logic to get a flight reservation
     app.Logger.LogInformation($"Getting reservation {id}.");
     FlightReservation? flightReservation = flights.FirstOrDefault(f => f.Id == id);
-    return flightReservation;
+    if (flightReservation == null)
+    {
+        return Results.NotFound($"Flight reservation {id} not found.");
+    }
+    return Results.Ok(flightReservation);
 
 });
 
@@ -76,7 +86,7 @@ app.MapDelete("/api/reservation/flight/{id}", (string id) =>
     FlightReservation? flightReservation = flights.FirstOrDefault(f => f.Id == id);
     if (flightReservation == null)
     {
-        return Results.NotFound($"Reservation {id} not found.", id);
+        return Results.NotFound($"Reservation {id} not found.");
     }
     else
     {
@@ -90,25 +100,26 @@ app.MapDelete("/api/reservation/flight/{id}", (string id) =>
 app.MapGet("/api/reservation/hotels", () => hotels);
 
 app.MapGet("/api/reservation/hotel/{id}", (string id) =>
-{
-    app.Logger.LogInformation($"Getting reservation {id}.");
-
-    HotelReservation? hotelReservation = hotels.FirstOrDefault(h => h.Id == id);
-
-    return hotelReservation;
-});
+ {
+     app.Logger.LogInformation($"Getting reservation {id}.");
+     HotelReservation? hotelReservation = hotels.FirstOrDefault(h => h.Id == id);
+     if (hotelReservation == null)
+     {
+         return Results.NotFound($"Hotel reservation {id} not found.");
+     }
+     return Results.Ok(hotelReservation);
+ });
 
 app.MapPost("/api/reservation/hotel", (HotelReservation hotel) =>
 {
     // Perform some logic to create a new hotel reservation
     string id = Guid.NewGuid().ToString();
 
-    var h = new hotelReservation(id, hotel.Name, hotel.Address, hotel.CheckIn, hotel.CheckOut);
+    var h = new HotelReservation(id, hotel.Name, hotel.Address, hotel.CheckIn, hotel.CheckOut);
     hotels.Add(h);
 
     // Return a HTTP Created result with the newly created reservation
     return Results.Created($"/api/reservation/hotel/{id}", h.Id);
-    // return Results.Created($"/api/reservation/hotel/{id}", new HotelReservation(id, hotel.Name, hotel.Address, hotel.CheckIn, hotel.CheckOut));
 });
 
 
@@ -119,7 +130,7 @@ app.MapDelete("/api/reservation/hotel/{id}", (string id) =>
     HotelReservation? hotelReservation = hotels.FirstOrDefault(h => h.Id == id);
     if (hotelReservation == null)
     {
-        return Results.NotFound($"Hotel reservation {id} not found.", id);
+        return Results.NotFound($"Hotel reservation {id} not found.");
     }
     else
     {
@@ -135,6 +146,12 @@ app.MapPost("/api/reservation/confirmation", (TravelReservation reservation) =>
     // Perform some logic to confirm the reservation
     app.Logger.LogInformation($"Confirming reservation for {reservation.Flight.Name} and {reservation.Hotel.Name}.");
     return Results.Ok($"Reservation confirmed for {reservation.Flight.Name} and {reservation.Hotel.Name}.");
+});
+
+app.MapPost("/api/reservation/tripfailure", () =>
+{
+    app.Logger.LogInformation("Trip failure notification!");
+    return Results.Ok($"Trip failure notification!");
 });
 
 
